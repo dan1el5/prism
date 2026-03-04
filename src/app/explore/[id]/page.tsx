@@ -68,9 +68,9 @@ function ExplorationContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="border-b border-border/50 px-4 py-3 flex items-center gap-4 bg-card/50 backdrop-blur-sm">
+      <header className="shrink-0 border-b border-border/50 px-4 py-3 flex items-center gap-4 bg-card/50 backdrop-blur-sm">
         <Link
           href="/"
           className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -93,9 +93,9 @@ function ExplorationContent() {
       </header>
 
       {/* Main layout */}
-      <div className="flex-1 flex flex-col lg:flex-row">
-        {/* Left panel — Agent Trace */}
-        <div className="lg:w-80 border-b lg:border-b-0 lg:border-r border-border/50 p-4 overflow-y-auto">
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0">
+        {/* Left panel — Agent Trace (scrollable) */}
+        <div className="lg:w-80 shrink-0 border-b lg:border-b-0 lg:border-r border-border/50 p-4 overflow-y-auto max-h-[300px] lg:max-h-none">
           <AgentTrace
             exploration={exploration}
             currentStage={currentStage}
@@ -103,20 +103,22 @@ function ExplorationContent() {
           />
         </div>
 
-        {/* Right panel — Knowledge Graph */}
-        <div className="flex-1 flex flex-col min-h-[400px] lg:min-h-0">
-          <div className="flex-1">
+        {/* Right panel — Knowledge Graph + Synthesis */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 min-h-[300px]">
             <KnowledgeGraph exploration={exploration} />
           </div>
+
+          {/* Synthesis */}
+          {exploration.synthesis && (
+            <div className="shrink-0 max-h-[40%] overflow-y-auto border-t border-border/50">
+              <div className="max-w-3xl mx-auto w-full px-6 py-6">
+                <SynthesisCard content={exploration.synthesis} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Synthesis */}
-      {exploration.synthesis && (
-        <div className="max-w-4xl mx-auto w-full px-4 pb-8">
-          <SynthesisCard content={exploration.synthesis} />
-        </div>
-      )}
 
       {/* Error */}
       {stream.error && (

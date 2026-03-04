@@ -7,7 +7,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const STAGES: { key: NonNullable<AgentStage>; label: string; icon: string }[] = [
   { key: "decompose", label: "Decompose", icon: "1" },
@@ -50,6 +50,11 @@ export function AgentTrace({
   const [openStages, setOpenStages] = useState<Set<string>>(
     new Set(["decompose", "explore", "connect", "synthesize"])
   );
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [currentStage, exploration.lenses, exploration.connections, exploration.synthesis]);
 
   function toggle(key: string) {
     setOpenStages((prev) => {
@@ -187,6 +192,7 @@ export function AgentTrace({
           );
         })}
       </div>
+      <div ref={bottomRef} />
     </div>
   );
 }
