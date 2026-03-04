@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Prism
 
-## Getting Started
+A multi-stage AI agent that autonomously explores questions — decomposing them into lenses, discovering concepts across domains, surfacing non-obvious connections, and synthesizing insights. The agent's reasoning trace is the interface.
 
-First, run the development server:
+**[Live Demo →](https://prism.vercel.app)**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Architecture
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The agent executes four stages per exploration, each a discrete Claude API call returning structured JSON:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Stage | Input | Output |
+|-------|-------|--------|
+| **Decompose** | User's question | 3-4 lenses (exploration angles) |
+| **Explore** | Question + lens (parallelized) | 3-5 concepts per lens with key thinkers |
+| **Connect** | All concepts across lenses | Cross-domain connection pairs with rationale |
+| **Synthesize** | Full concept graph | Written synthesis of tensions, patterns, open questions |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Results stream to the client via SSE as the agent completes each stage. The left panel renders the agent trace in real time. The right panel incrementally builds a knowledge graph — nodes are concepts (color-coded by lens), edges are discovered connections.
 
-## Learn More
+Pre-baked explorations replay through a progressive reveal system that animates the same stage-by-stage experience without API calls.
 
-To learn more about Next.js, take a look at the following resources:
+## Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Next.js (App Router) · TypeScript · Tailwind CSS · shadcn/ui · React Flow · Anthropic SDK · SSE
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Design Decisions
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **No database** — pre-baked explorations are static JSON, live explorations exist only in the SSE stream and client state
+- **No chat interface** — this is an autonomous agent, not a conversational assistant. The user submits a question and watches the agent work
+- **Structured outputs throughout** — every stage returns typed JSON, not prose. The knowledge graph is an artifact built across multiple reasoning steps
+- **Haiku for stages 1-3, Sonnet for synthesis** — optimizes for speed during exploration, quality during final output

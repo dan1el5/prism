@@ -1,0 +1,151 @@
+{
+  "id": "teaching",
+  "question": "What makes a great teacher?",
+  "status": "complete",
+  "lenses": [
+    {
+      "id": "lens-0",
+      "name": "Cognitive Science of Learning",
+      "description": "What research on memory, attention, and knowledge transfer reveals about effective teaching practices.",
+      "concepts": [
+        {
+          "id": "lens-0-concept-0",
+          "lensId": "lens-0",
+          "name": "Desirable Difficulties",
+          "description": "Bjork's finding that conditions making learning feel harder — spacing, interleaving, retrieval practice — actually produce stronger long-term retention. Great teachers create productive struggle, not easy fluency.",
+          "thinkers": ["Robert Bjork", "Elizabeth Bjork", "Nate Kornell"]
+        },
+        {
+          "id": "lens-0-concept-1",
+          "lensId": "lens-0",
+          "name": "Cognitive Load Theory",
+          "description": "Sweller's framework showing that working memory is severely limited. Great teachers manage cognitive load — reducing extraneous complexity while optimizing the germane load that builds schema.",
+          "thinkers": ["John Sweller", "Richard Mayer", "Paul Chandler"]
+        },
+        {
+          "id": "lens-0-concept-2",
+          "lensId": "lens-0",
+          "name": "Transfer of Learning",
+          "description": "The notoriously difficult challenge of applying knowledge in new contexts. Great teachers don't just teach content — they teach the deep structural patterns that enable transfer across domains.",
+          "thinkers": ["Douglas Detterman", "Robert Sternberg", "David Perkins"]
+        },
+        {
+          "id": "lens-0-concept-3",
+          "lensId": "lens-0",
+          "name": "Expert Blind Spot",
+          "description": "The paradox that deep expertise can impair teaching — experts have automated so much knowledge that they can't see what novices find confusing. Great teachers maintain access to the novice perspective.",
+          "thinkers": ["Pamela Hinds", "Carl Wieman", "Steven Pinker"]
+        }
+      ]
+    },
+    {
+      "id": "lens-1",
+      "name": "Relational & Emotional Dimensions",
+      "description": "The interpersonal qualities, emotional intelligence, and relationship dynamics that distinguish transformative teachers.",
+      "concepts": [
+        {
+          "id": "lens-1-concept-0",
+          "lensId": "lens-1",
+          "name": "Unconditional Positive Regard",
+          "description": "Rogers' concept applied to teaching: the belief that every student has worth and potential, independent of current performance. Students who feel genuinely valued by a teacher take the risks that learning requires.",
+          "thinkers": ["Carl Rogers", "Nel Noddings", "Rita Pierson"]
+        },
+        {
+          "id": "lens-1-concept-1",
+          "lensId": "lens-1",
+          "name": "High Expectations with High Support",
+          "description": "The combination that research consistently identifies in great teachers — demanding excellence while providing the scaffolding to achieve it. Neither rigor without warmth nor warmth without rigor produces growth.",
+          "thinkers": ["Jaime Escalante", "Lisa Delpit", "Ronald Ferguson"]
+        },
+        {
+          "id": "lens-1-concept-2",
+          "lensId": "lens-1",
+          "name": "Emotional Contagion in Classrooms",
+          "description": "Teachers' emotional states are literally contagious — enthusiasm, curiosity, anxiety, and boredom spread through mirror neuron systems and social cues. A teacher's genuine passion for subject matter is pedagogically functional.",
+          "thinkers": ["Elaine Hatfield", "Mary Helen Immordino-Yang", "Kurt Fischer"]
+        },
+        {
+          "id": "lens-1-concept-3",
+          "lensId": "lens-1",
+          "name": "Belonging & Identity Safety",
+          "description": "Students learn better when they feel they belong in the learning environment and their identity isn't threatened. Great teachers create spaces where intellectual risk doesn't feel like identity risk.",
+          "thinkers": ["Claude Steele", "Gregory Walton", "Geoffrey Cohen"]
+        }
+      ]
+    },
+    {
+      "id": "lens-2",
+      "name": "Craft & Performance",
+      "description": "Teaching as a performing art — the techniques, improvisational skills, and deliberate practices of master practitioners.",
+      "concepts": [
+        {
+          "id": "lens-2-concept-0",
+          "lensId": "lens-2",
+          "name": "Pedagogical Content Knowledge",
+          "description": "Shulman's crucial insight: great teaching requires neither just subject expertise nor just teaching skill, but a special amalgam — knowing which analogies work, which misconceptions students hold, how to sequence ideas for understanding.",
+          "thinkers": ["Lee Shulman", "Deborah Ball", "Pam Grossman"]
+        },
+        {
+          "id": "lens-2-concept-1",
+          "lensId": "lens-2",
+          "name": "Responsive Teaching",
+          "description": "The improvisational skill of adjusting in real-time based on what students reveal about their understanding. Like jazz, great teaching follows a structure but constantly adapts to the moment.",
+          "thinkers": ["Magdalene Lampert", "Deborah Ball", "David Hawkins"]
+        },
+        {
+          "id": "lens-2-concept-2",
+          "lensId": "lens-2",
+          "name": "Questioning as Art",
+          "description": "The Socratic skill of asking questions that don't just check understanding but genuinely provoke thinking. Great questions create cognitive conflict, surface assumptions, and invite students into the intellectual problem.",
+          "thinkers": ["Socrates", "Paulo Freire", "Dan Rothstein"]
+        },
+        {
+          "id": "lens-2-concept-3",
+          "lensId": "lens-2",
+          "name": "Deliberate Practice in Teaching",
+          "description": "The finding that teaching skill improves through specific, targeted practice with feedback — not just years of experience. Most teachers plateau after 3-5 years; those who keep growing practice deliberately.",
+          "thinkers": ["Anders Ericsson", "Doug Lemov", "Jim Knight"]
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "connection-0",
+      "sourceConceptId": "lens-0-concept-0",
+      "targetConceptId": "lens-1-concept-1",
+      "description": "Desirable difficulties only work within high-support relationships. The productive struggle of retrieval practice and interleaving requires students to trust that difficulty is intentional and the teacher believes they can succeed."
+    },
+    {
+      "id": "connection-1",
+      "sourceConceptId": "lens-0-concept-3",
+      "targetConceptId": "lens-2-concept-0",
+      "description": "Pedagogical content knowledge is the antidote to expert blind spot. Shulman's concept describes exactly the knowledge that helps experts bridge back to novice understanding — knowing where students get stuck and why."
+    },
+    {
+      "id": "connection-2",
+      "sourceConceptId": "lens-1-concept-2",
+      "targetConceptId": "lens-2-concept-2",
+      "description": "Emotional contagion and questioning artistry are deeply linked — a teacher's genuine curiosity about a question is contagious, transforming a 'test' into a shared investigation. The question's emotional framing matters as much as its cognitive structure."
+    },
+    {
+      "id": "connection-3",
+      "sourceConceptId": "lens-0-concept-1",
+      "targetConceptId": "lens-2-concept-1",
+      "description": "Cognitive load theory provides the science behind responsive teaching. When a teacher senses students are overwhelmed and adjusts, they're intuitively managing cognitive load — reducing extraneous demands to keep germane processing possible."
+    },
+    {
+      "id": "connection-4",
+      "sourceConceptId": "lens-1-concept-3",
+      "targetConceptId": "lens-0-concept-2",
+      "description": "Belonging and identity safety are prerequisites for transfer. Students who feel threatened default to surface-level, context-dependent learning. Deep structural understanding — the kind that transfers — requires the cognitive freedom that safety provides."
+    },
+    {
+      "id": "connection-5",
+      "sourceConceptId": "lens-2-concept-3",
+      "targetConceptId": "lens-1-concept-0",
+      "description": "Deliberate practice in teaching must include practicing the relational dimension. A teacher can drill questioning techniques, but unconditional positive regard can't be faked — it requires genuine development of one's orientation toward students."
+    }
+  ],
+  "synthesis": "What emerges from examining great teaching across cognitive science, relational psychology, and craft practice is a fundamental paradox: the most effective teaching feels effortless to the student but requires extraordinary sophistication from the teacher. Great teachers simultaneously manage cognitive load, emotional climate, and real-time responsiveness — a triple burden that makes teaching one of the most cognitively demanding professions, despite its low status. The research converges on a profile that is rare precisely because it combines qualities that don't naturally coexist: deep expertise with the humility to remember confusion, high standards with genuine warmth, structured planning with improvisational flexibility.\n\nThe most illuminating cross-domain connection is between desirable difficulties and high-support relationships. Cognitive science tells us that learning requires struggle — retrieval practice, spacing, interleaving all feel harder than passive review. But relational research shows that students only tolerate productive struggle within relationships of trust. A teacher who creates difficulty without support produces anxiety; one who provides support without difficulty produces comfort. Only the combination produces growth. This explains why pedagogical techniques that 'work' in research often fail in practice — they were tested in contexts where the relational foundation was assumed, not built.\n\nEqually revealing is the connection between emotional contagion and intellectual rigor. The stereotype separates 'warm, caring' teachers from 'rigorous, demanding' ones, but the research shows these aren't in tension — they're synergistic. A teacher's genuine intellectual passion is contagious and functional. When a teacher asks a question out of authentic curiosity rather than as a compliance check, students experience the question differently. The emotional frame transforms the cognitive task. This suggests that great teaching cannot be fully systematized — it requires a teacher who is themselves still genuinely engaged with the subject matter, still finding it surprising and alive.\n\nTwo open questions seem particularly urgent. First, if deliberate practice is key to teaching improvement, why do most educational systems provide almost no structured practice opportunities after initial training — and can this be changed without the coaching infrastructure that other performance professions take for granted? Second, as AI tutoring systems become more sophisticated, they may excel at managing cognitive load and sequencing content, but can they replicate the emotional contagion and identity-affirming relationships that research identifies as essential? The answer may reveal whether great teaching is fundamentally a human achievement or a set of principles that any sufficiently intelligent system could embody."
+}
