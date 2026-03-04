@@ -14,9 +14,9 @@ import {
   NodeProps,
   Handle,
   Position,
+  ConnectionLineType,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import dagre from "dagre";
 import { Exploration, Concept } from "@/lib/types";
 import { NodeDetail } from "./node-detail";
 
@@ -28,6 +28,32 @@ const LENS_COLORS: { bg: string; border: string; text: string }[] = [
   { bg: "rgba(139, 92, 246, 0.15)", border: "#a78bfa", text: "#ddd6fe" },
 ];
 
+function AllHandles() {
+  return (
+    <>
+      <Handle type="target" position={Position.Top} id="t" className="opacity-0" />
+      <Handle type="target" position={Position.Bottom} id="b-t" className="opacity-0" />
+      <Handle type="target" position={Position.Left} id="l-t" className="opacity-0" />
+      <Handle type="target" position={Position.Right} id="r-t" className="opacity-0" />
+      <Handle type="source" position={Position.Top} id="t-s" className="opacity-0" />
+      <Handle type="source" position={Position.Bottom} id="b" className="opacity-0" />
+      <Handle type="source" position={Position.Left} id="l" className="opacity-0" />
+      <Handle type="source" position={Position.Right} id="r" className="opacity-0" />
+    </>
+  );
+}
+
+function QuestionNode({ data }: NodeProps<Node<{ label: string; animate: boolean }>>) {
+  return (
+    <div
+      className={`px-6 py-3 rounded-2xl border border-primary/30 bg-primary/10 text-sm font-medium text-foreground text-center max-w-[240px] ${data.animate ? "animate-node-enter" : ""}`}
+    >
+      <AllHandles />
+      <span>{data.label}</span>
+    </div>
+  );
+}
+
 function LensNode({ data }: NodeProps<Node<{ label: string; color: typeof LENS_COLORS[number]; animate: boolean }>>) {
   return (
     <div
@@ -38,9 +64,8 @@ function LensNode({ data }: NodeProps<Node<{ label: string; color: typeof LENS_C
         color: data.color.border,
       }}
     >
-      <Handle type="target" position={Position.Top} className="opacity-0" />
+      <AllHandles />
       <span>{data.label}</span>
-      <Handle type="source" position={Position.Bottom} className="opacity-0" />
     </div>
   );
 }
@@ -56,40 +81,93 @@ function ConceptNode({ data }: NodeProps<Node<{ label: string; color: typeof LEN
         boxShadow: `0 0 12px ${data.color.border}33`,
       }}
     >
-      <Handle type="target" position={Position.Top} className="opacity-0" />
+      <AllHandles />
       <span>{data.label}</span>
-      <Handle type="source" position={Position.Bottom} className="opacity-0" />
     </div>
   );
 }
 
-const nodeTypes = { concept: ConceptNode, lens: LensNode };
+const nodeTypes = { question: QuestionNode, concept: ConceptNode, lens: LensNode };
 
-function layoutGraph(nodes: Node[], edges: Edge[]): Node[] {
-  const g = new dagre.graphlib.Graph();
-  g.setDefaultEdgeLabel(() => ({}));
-  g.setGraph({ rankdir: "TB", nodesep: 50, ranksep: 70 });
+// Radial layout: question at center, lenses around it, concepts around each lens
+function radialLayout(
+  lenses: Exploration["lenses"],
+  questionNodeId: string
+): Map<string, { x: number; y: number }> {
+  const positions = new Map<string, { x: number; y: number }>();
+  const lensCount = lenses.length;
 
-  nodes.forEach((node) => {
-    const isLens = node.type === "lens";
-    g.setNode(node.id, { width: isLens ? 140 : 180, height: isLens ? 40 : 56 });
+  // Question at origin
+  positions.set(questionNodeId, { x: 0, y: 0 });
+
+  const LENS_RADIUS = 350;
+  const CONCEPT_RADIUS = 250;
+
+  // Spread lenses evenly around the center, starting from top
+  const startAngle = -Math.PI / 2;
+
+  lenses.forEach((lens, i) => {
+    const lensAngle = startAngle + (2 * Math.PI * i) / lensCount;
+    const lensX = Math.cos(lensAngle) * LENS_RADIUS;
+    const lensY = Math.sin(lensAngle) * LENS_RADIUS;
+    positions.set(`lens-${lens.id}`, { x: lensX, y: lensY });
+
+    const conceptCount = lens.concepts.length;
+    if (conceptCount === 0) return;
+
+    // Fan concepts in an arc radiating outward from the lens
+    // Wider arc for more concepts
+    const arcSpread = Math.min(Math.PI * 0.7, conceptCount * 0.4);
+
+    lens.concepts.forEach((concept, ci) => {
+      const offset =
+        conceptCount === 1
+          ? 0
+          : -arcSpread / 2 + (arcSpread * ci) / (conceptCount - 1);
+      const conceptAngle = lensAngle + offset;
+      const cx = lensX + Math.cos(conceptAngle) * CONCEPT_RADIUS;
+      const cy = lensY + Math.sin(conceptAngle) * CONCEPT_RADIUS;
+      positions.set(concept.id, { x: cx, y: cy });
+    });
   });
 
-  edges.forEach((edge) => {
-    g.setEdge(edge.source, edge.target);
-  });
+  // Resolve overlaps by pushing nodes apart
+  const NODE_W = 190;
+  const NODE_H = 65;
+  const PADDING = 20;
+  const ids = Array.from(positions.keys());
 
-  dagre.layout(g);
+  for (let iter = 0; iter < 20; iter++) {
+    let hadOverlap = false;
+    for (let i = 0; i < ids.length; i++) {
+      for (let j = i + 1; j < ids.length; j++) {
+        const a = positions.get(ids[i])!;
+        const b = positions.get(ids[j])!;
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const overlapX = (NODE_W + PADDING) - Math.abs(dx);
+        const overlapY = (NODE_H + PADDING) - Math.abs(dy);
+        if (overlapX > 0 && overlapY > 0) {
+          hadOverlap = true;
+          // Push apart along the axis with less overlap
+          if (overlapX < overlapY) {
+            const push = overlapX / 2 + 1;
+            const dir = dx >= 0 ? 1 : -1;
+            a.x -= dir * push;
+            b.x += dir * push;
+          } else {
+            const push = overlapY / 2 + 1;
+            const dir = dy >= 0 ? 1 : -1;
+            a.y -= dir * push;
+            b.y += dir * push;
+          }
+        }
+      }
+    }
+    if (!hadOverlap) break;
+  }
 
-  return nodes.map((node) => {
-    const pos = g.node(node.id);
-    const w = node.type === "lens" ? 70 : 90;
-    const h = node.type === "lens" ? 20 : 28;
-    return {
-      ...node,
-      position: { x: pos.x - w, y: pos.y - h },
-    };
-  });
+  return positions;
 }
 
 function KnowledgeGraphInner({
@@ -105,7 +183,23 @@ function KnowledgeGraphInner({
     const nodes: Node[] = [];
     const edges: Edge[] = [];
 
-    // Create lens group nodes and tree edges (lens → concept)
+    const rootId = "root-question";
+    const shouldAnimateRoot = !animatedNodesRef.current.has(rootId);
+    if (shouldAnimateRoot) animatedNodesRef.current.add(rootId);
+
+    const questionLabel =
+      exploration.question.length > 50
+        ? exploration.question.slice(0, 47) + "..."
+        : exploration.question;
+
+    nodes.push({
+      id: rootId,
+      type: "question",
+      position: { x: 0, y: 0 },
+      data: { label: questionLabel, animate: shouldAnimateRoot },
+      selectable: false,
+    });
+
     exploration.lenses.forEach((lens, lensIdx) => {
       const color = LENS_COLORS[lensIdx % LENS_COLORS.length];
       const lensNodeId = `lens-${lens.id}`;
@@ -121,6 +215,16 @@ function KnowledgeGraphInner({
         selectable: false,
       });
 
+      edges.push({
+        id: `root-${lensNodeId}`,
+        source: rootId,
+        target: lensNodeId,
+        style: {
+          stroke: color.border + "33",
+          strokeWidth: 1.5,
+        },
+      });
+
       lens.concepts.forEach((concept) => {
         const shouldAnimate = !animatedNodesRef.current.has(concept.id);
         if (shouldAnimate) animatedNodesRef.current.add(concept.id);
@@ -132,7 +236,6 @@ function KnowledgeGraphInner({
           data: { label: concept.name, color, concept, animate: shouldAnimate },
         });
 
-        // Tree edge: lens → concept
         edges.push({
           id: `tree-${lensNodeId}-${concept.id}`,
           source: lensNodeId,
@@ -145,25 +248,33 @@ function KnowledgeGraphInner({
       });
     });
 
-    // Cross-domain connection edges
+    // Compute radial positions
+    const positions = radialLayout(exploration.lenses, rootId);
+    const laid = nodes.map((node) => {
+      const pos = positions.get(node.id);
+      if (!pos) return node;
+      return { ...node, position: { x: pos.x, y: pos.y } };
+    });
+
+    // Cross-domain connection edges (visual only)
+    const allEdges = [...edges];
     exploration.connections.forEach((conn) => {
-      edges.push({
+      allEdges.push({
         id: conn.id,
         source: conn.sourceConceptId,
         target: conn.targetConceptId,
         label: "",
         style: {
           stroke: "#6366f1",
-          strokeWidth: 2,
+          strokeWidth: 1.5,
           strokeDasharray: "6 3",
         },
         animated: true,
       });
     });
 
-    const laid = nodes.length > 0 ? layoutGraph(nodes, edges) : nodes;
-    return { initialNodes: laid, initialEdges: edges };
-  }, [exploration.lenses, exploration.connections]);
+    return { initialNodes: laid, initialEdges: allEdges };
+  }, [exploration.lenses, exploration.connections, exploration.question]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -171,9 +282,9 @@ function KnowledgeGraphInner({
   useEffect(() => {
     setNodes(initialNodes);
     setEdges(initialEdges);
-    requestAnimationFrame(() => {
-      fitView({ padding: 0.3, duration: 400, maxZoom: 1 });
-    });
+    setTimeout(() => {
+      fitView({ padding: 0.15, duration: 800, maxZoom: 0.85 });
+    }, 100);
   }, [initialNodes, initialEdges, setNodes, setEdges, fitView]);
 
   const onNodeClick = useCallback(
@@ -202,9 +313,10 @@ function KnowledgeGraphInner({
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
+        connectionLineType={ConnectionLineType.Straight}
         colorMode="dark"
         fitView
-        fitViewOptions={{ padding: 0.3, maxZoom: 1 }}
+        fitViewOptions={{ padding: 0.15, maxZoom: 0.85, duration: 800 }}
         proOptions={{ hideAttribution: true }}
       >
         <Background color="#333" gap={20} />
@@ -219,7 +331,7 @@ function KnowledgeGraphInner({
               className="w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: LENS_COLORS[i % LENS_COLORS.length].border }}
             />
-            <span className="text-muted-foreground">{lens.name}</span>
+            <span className="text-muted-foreground max-w-[180px] truncate">{lens.name}</span>
           </div>
         ))}
       </div>

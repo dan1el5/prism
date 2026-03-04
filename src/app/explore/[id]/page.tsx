@@ -9,6 +9,7 @@ import { AgentTrace } from "@/components/agent-trace";
 import { KnowledgeGraph } from "@/components/knowledge-graph";
 import { SynthesisCard } from "@/components/synthesis-card";
 import { Button } from "@/components/ui/button";
+import { XIcon } from "lucide-react";
 import Link from "next/link";
 
 function ExplorationContent() {
@@ -22,6 +23,8 @@ function ExplorationContent() {
   const [loading, setLoading] = useState(!isLive);
   const stream = useExplorationStream();
   const reveal = useProgressiveReveal(prebaked);
+
+  const [synthOpen, setSynthOpen] = useState(false);
 
   // Fetch pre-baked exploration
   useEffect(() => {
@@ -103,16 +106,45 @@ function ExplorationContent() {
           />
         </div>
 
-        {/* Right panel — Knowledge Graph + Synthesis */}
-        <div className="flex-1 flex flex-col min-h-0">
-          <div className="flex-1 min-h-[300px]">
+        {/* Right panel — Knowledge Graph */}
+        <div className="flex-1 flex flex-col min-h-0 relative">
+          <div className="flex-1 min-h-0">
             <KnowledgeGraph exploration={exploration} />
           </div>
 
-          {/* Synthesis */}
-          {exploration.synthesis && (
-            <div className="shrink-0 max-h-[40%] overflow-y-auto border-t border-border/50">
-              <div className="max-w-3xl mx-auto w-full px-6 py-6">
+          {/* Synthesis button */}
+          {exploration.synthesis && !synthOpen && (
+            <div className="absolute bottom-6 right-6 animate-fade-in-up">
+              <button
+                onClick={() => setSynthOpen(true)}
+                className="group flex items-center gap-3 px-7 py-3.5 rounded-full border border-border/50 bg-card/90 backdrop-blur-sm shadow-lg hover:shadow-xl hover:border-primary/40 transition-all duration-300"
+              >
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+                </span>
+                <span className="text-base font-medium text-foreground/80 group-hover:text-foreground transition-colors">
+                  Read Synthesis
+                </span>
+              </button>
+            </div>
+          )}
+
+          {/* Synthesis modal — scoped to graph panel */}
+          {synthOpen && exploration.synthesis && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center p-8">
+              <div
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                onClick={() => setSynthOpen(false)}
+              />
+              <div className="relative w-full max-w-3xl max-h-full overflow-y-auto rounded-xl border border-border/50 bg-card p-6 shadow-2xl animate-fade-in-up">
+                <button
+                  onClick={() => setSynthOpen(false)}
+                  className="absolute top-4 right-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+                >
+                  <XIcon className="h-4 w-4" />
+                  <span className="sr-only">Close</span>
+                </button>
                 <SynthesisCard content={exploration.synthesis} />
               </div>
             </div>

@@ -48,9 +48,20 @@ export function AgentTrace({
   isComplete: boolean;
 }) {
   const [openStages, setOpenStages] = useState<Set<string>>(
-    new Set(["decompose", "explore", "connect", "synthesize"])
+    new Set(["decompose"])
   );
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Auto-collapse: only keep the active stage open
+  useEffect(() => {
+    if (isComplete) {
+      setOpenStages(new Set(["synthesize"]));
+      return;
+    }
+    if (currentStage) {
+      setOpenStages(new Set([currentStage]));
+    }
+  }, [currentStage, isComplete]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -169,16 +180,21 @@ export function AgentTrace({
                   )}
                 {key === "connect" && exploration.connections.length > 0 && (
                   <div className="space-y-1">
-                    {exploration.connections.map((conn, ci) => (
+                    {exploration.connections.slice(0, 5).map((conn, ci) => (
                       <div
                         key={conn.id}
                         className="text-xs animate-fade-in-up"
                         style={{ animationDelay: `${ci * 60}ms`, animationFillMode: "both" }}
                       >
-                        &bull; {conn.description.slice(0, 120)}
-                        {conn.description.length > 120 ? "..." : ""}
+                        &bull; {conn.description.slice(0, 80)}
+                        {conn.description.length > 80 ? "..." : ""}
                       </div>
                     ))}
+                    {exploration.connections.length > 5 && (
+                      <div className="text-xs text-muted-foreground/50 italic">
+                        +{exploration.connections.length - 5} more
+                      </div>
+                    )}
                   </div>
                 )}
                 {key === "synthesize" && exploration.synthesis && (
