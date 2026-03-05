@@ -18,7 +18,7 @@ const STAGES: { key: NonNullable<AgentStage>; label: string; icon: string }[] = 
 
 const STAGE_ORDER = ["decompose", "explore", "connect", "synthesize"];
 
-function stageProgress(currentStage: AgentStage, isComplete: boolean): number {
+export function stageProgress(currentStage: AgentStage, isComplete: boolean): number {
   if (isComplete) return 100;
   if (!currentStage) return 0;
   const idx = STAGE_ORDER.indexOf(currentStage);
@@ -80,19 +80,21 @@ export function AgentTrace({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-        Agent Trace
-      </h2>
+      <div className="hidden lg:block space-y-4">
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+          Agent Trace
+        </h2>
 
-      {/* Progress bar */}
-      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-700 ease-out"
-          style={{
-            width: `${progress}%`,
-            background: "linear-gradient(90deg, var(--primary), oklch(0.7 0.17 300))",
-          }}
-        />
+        {/* Progress bar */}
+        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-700 ease-out"
+            style={{
+              width: `${progress}%`,
+              background: "linear-gradient(90deg, var(--primary), oklch(0.7 0.17 300))",
+            }}
+          />
+        </div>
       </div>
 
       <div className="space-y-1">

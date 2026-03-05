@@ -280,8 +280,12 @@ function KnowledgeGraphInner({
     setNodes(initialNodes);
     setEdges(initialEdges);
     // Delay to let React Flow measure nodes before fitting
+    const isMobile = window.innerWidth < 640;
     setTimeout(() => {
-      fitView({ padding: 0.15, maxZoom: 0.85 });
+      fitView({
+        padding: isMobile ? 0.02 : 0.15,
+        maxZoom: isMobile ? 0.35 : 0.85,
+      });
     }, 50);
   }, [initialNodes, initialEdges, setNodes, setEdges, fitView]);
 
@@ -313,6 +317,7 @@ function KnowledgeGraphInner({
         nodeTypes={nodeTypes}
         connectionLineType={ConnectionLineType.Straight}
         colorMode="dark"
+        minZoom={0.1}
         proOptions={{ hideAttribution: true }}
       >
         <Background color="#333" gap={20} />

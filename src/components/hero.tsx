@@ -31,23 +31,21 @@ export function Hero() {
   }
 
   return (
-    <section className="relative flex flex-col items-center text-center py-12 sm:py-16 px-4 overflow-hidden">
-      {/* Dot grid background */}
+    <section className="relative flex flex-col items-center text-center py-4 sm:py-16 px-4 overflow-hidden">
+      {/* Dot grid background — no mask on mobile, masked on desktop */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none sm:dot-grid-bg"
         style={{
           backgroundImage: "radial-gradient(circle, oklch(1 0 0 / 8%) 1px, transparent 1px)",
           backgroundSize: "24px 24px",
-          maskImage: "radial-gradient(ellipse 50% 50% at 50% 50%, black, transparent)",
-          WebkitMaskImage: "radial-gradient(ellipse 50% 50% at 50% 50%, black, transparent)",
         }}
       />
 
       {/* Prism container */}
-      <div className="relative w-full max-w-4xl mx-auto">
+      <div className="relative w-full max-w-md sm:max-w-4xl mx-auto">
         {/* SVG triangle + beams */}
         <svg
-          className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
+          className="absolute inset-0 w-full h-full pointer-events-none overflow-visible hidden sm:block"
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
           fill="none"
@@ -115,12 +113,13 @@ export function Hero() {
         </svg>
 
         {/* Content inside the prism */}
-        <div className="relative flex flex-col items-center gap-5 pt-32 pb-14 sm:pt-36 sm:pb-18 px-24 sm:px-32">
+        <div className="relative flex flex-col items-center gap-6 sm:gap-5 py-8 sm:pt-36 sm:pb-18 px-6 sm:px-32">
           {/* Title */}
           <h1
-            className="text-6xl sm:text-7xl font-bold font-mono tracking-tighter bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent opacity-0 animate-hero-fade-in"
+            className="relative text-5xl sm:text-7xl font-bold font-mono tracking-tighter bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent opacity-0 animate-hero-fade-in"
             style={{ animationDelay: "100ms" }}
           >
+            <span className="absolute inset-0 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent blur-xl opacity-60" aria-hidden="true">Prism</span>
             Prism
           </h1>
 
@@ -129,14 +128,14 @@ export function Hero() {
             className="text-sm sm:text-base text-muted-foreground font-light max-w-sm opacity-0 animate-hero-fade-in"
             style={{ animationDelay: "200ms" }}
           >
-            Enter a question. Watch an AI agent decompose it into
-            lenses, discover connections, and synthesize insights in real time.
+            One question, many angles. An AI agent refracts your question
+            through multiple lenses to reveal hidden connections and insights.
           </p>
 
           {/* Input area */}
           <form
             onSubmit={handleSubmit}
-            className="flex w-full max-w-md gap-2 mt-1 opacity-0 animate-hero-fade-in"
+            className="flex w-full max-w-md gap-3 mt-2 sm:mt-1 opacity-0 animate-hero-fade-in flex-col sm:flex-row"
             style={{ animationDelay: "300ms" }}
           >
             <Input

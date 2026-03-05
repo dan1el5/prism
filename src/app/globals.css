@@ -304,3 +304,18 @@
 .animate-refract-glow {
   animation: refract-glow 3s ease-in-out infinite;
 }
+
+/* Dot grid with responsive mask */
+.dot-grid-bg {
+  background-image: radial-gradient(circle, oklch(1 0 0 / 8%) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black, transparent);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black, transparent);
+}
+
+@media (min-width: 640px) {
+  .dot-grid-bg {
+    mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, black, transparent);
+    -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, black, transparent);
+  }
+}

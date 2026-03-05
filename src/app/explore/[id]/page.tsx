@@ -5,7 +5,7 @@ import { useEffect, useState, Suspense } from "react";
 import { Exploration } from "@/lib/types";
 import { useExplorationStream } from "@/hooks/use-exploration-stream";
 import { useProgressiveReveal } from "@/hooks/use-progressive-reveal";
-import { AgentTrace } from "@/components/agent-trace";
+import { AgentTrace, stageProgress } from "@/components/agent-trace";
 import { KnowledgeGraph } from "@/components/knowledge-graph";
 import { SynthesisCard } from "@/components/synthesis-card";
 import { Button } from "@/components/ui/button";
@@ -113,13 +113,31 @@ function ExplorationContent() {
 
       {/* Main layout */}
       <div className="flex-1 flex flex-col lg:flex-row min-h-0">
-        {/* Left panel — Agent Trace (scrollable) */}
-        <div className="lg:w-80 shrink-0 border-b lg:border-b-0 lg:border-r border-border/50 p-4 overflow-y-auto max-h-[300px] lg:max-h-none">
-          <AgentTrace
-            exploration={exploration}
-            currentStage={currentStage}
-            isComplete={isComplete}
-          />
+        {/* Left panel — Agent Trace */}
+        <div className="lg:w-80 shrink-0 border-b lg:border-b-0 lg:border-r border-border/50 flex flex-col max-h-[300px] lg:max-h-none">
+          {/* Pinned header (mobile) */}
+          <div className="shrink-0 px-4 pt-4 pb-2 space-y-2 lg:hidden">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Agent Trace
+            </h2>
+            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-700 ease-out"
+                style={{
+                  width: `${stageProgress(currentStage, isComplete)}%`,
+                  background: "linear-gradient(90deg, var(--primary), oklch(0.7 0.17 300))",
+                }}
+              />
+            </div>
+          </div>
+          {/* Scrollable stages */}
+          <div className="flex-1 overflow-y-auto p-4 pt-0 lg:pt-4">
+            <AgentTrace
+              exploration={exploration}
+              currentStage={currentStage}
+              isComplete={isComplete}
+            />
+          </div>
         </div>
 
         {/* Right panel — Knowledge Graph */}

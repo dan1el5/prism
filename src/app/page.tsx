@@ -41,7 +41,7 @@ export default async function HomePage() {
         <Hero />
 
         {explorations.length > 0 && (
-          <section className="relative z-10 max-w-3xl mx-auto px-4 -mt-4 pb-4">
+          <section className="relative z-10 max-w-3xl mx-auto px-4 mt-2 sm:-mt-4 pb-4">
             <div className="flex flex-wrap justify-center gap-3">
               {explorations.map((meta) => (
                 <Link
