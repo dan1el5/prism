@@ -55,7 +55,7 @@ export default async function HomePage() {
                 <Link
                   key={meta.id}
                   href={`/explore/${meta.id}`}
-                  className="text-sm text-foreground/70 hover:text-foreground border border-border hover:border-indigo-500/50 bg-card/60 hover:bg-card rounded-full px-5 py-2.5 transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-0.5"
+                  className="text-sm text-center text-foreground/70 hover:text-foreground border border-border hover:border-indigo-500/50 bg-card/60 hover:bg-card rounded-full px-5 py-2.5 transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-0.5"
                 >
                   {meta.question}
                 </Link>
