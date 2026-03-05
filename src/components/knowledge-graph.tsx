@@ -169,6 +169,17 @@ function radialLayout(
   return positions;
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  return isMobile;
+}
+
 function KnowledgeGraphInner({
   exploration,
 }: {
@@ -177,6 +188,7 @@ function KnowledgeGraphInner({
   const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
   const animatedNodesRef = useRef<Set<string>>(new Set());
   const { fitView } = useReactFlow();
+  const isMobile = useIsMobile();
 
   const { initialNodes, initialEdges } = useMemo(() => {
     const nodes: Node[] = [];
@@ -323,18 +335,20 @@ function KnowledgeGraphInner({
         <Controls />
       </ReactFlow>
 
-      {/* Legend */}
-      <div className="absolute top-2 right-2 bg-card/80 backdrop-blur-sm rounded-lg p-2.5 text-xs space-y-1.5 border border-border/50">
-        {exploration.lenses.map((lens, i) => (
-          <div key={lens.id} className="flex items-center gap-2">
-            <span
-              className="w-2.5 h-2.5 rounded-full"
-              style={{ backgroundColor: LENS_COLORS[i % LENS_COLORS.length].border }}
-            />
-            <span className="text-muted-foreground">{lens.name}</span>
-          </div>
-        ))}
-      </div>
+      {/* Legend (desktop only) */}
+      {!isMobile && (
+        <div className="absolute top-2 right-2 bg-card/80 backdrop-blur-sm rounded-lg p-2.5 text-xs space-y-1.5 border border-border/50">
+          {exploration.lenses.map((lens, i) => (
+            <div key={lens.id} className="flex items-center gap-2">
+              <span
+                className="w-2.5 h-2.5 rounded-full"
+                style={{ backgroundColor: LENS_COLORS[i % LENS_COLORS.length].border }}
+              />
+              <span className="text-muted-foreground">{lens.name}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {selectedConcept && (
         <NodeDetail

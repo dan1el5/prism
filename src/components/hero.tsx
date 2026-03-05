@@ -134,7 +134,7 @@ export function Hero() {
             style={{ animationDelay: "300ms" }}
           >
             <Input
-              placeholder="What question do you want to explore?"
+              placeholder="What do you want to explore?"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               className="flex-1 h-11 px-4 text-base sm:text-sm bg-card/50 border-border/50 backdrop-blur-sm focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/40 transition-shadow"
