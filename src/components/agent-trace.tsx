@@ -51,17 +51,56 @@ export function AgentTrace({
     new Set(["decompose"])
   );
   const bottomRef = useRef<HTMLDivElement>(null);
+  const prevConceptCountRef = useRef(0);
+  const prevConnectionCountRef = useRef(0);
 
-  // Auto-collapse: only keep the active stage open
+  // Open new stage when it becomes active
   useEffect(() => {
     if (isComplete) {
       setOpenStages(new Set(["synthesize"]));
       return;
     }
     if (currentStage) {
-      setOpenStages(new Set([currentStage]));
+      setOpenStages((prev) => new Set([...prev, currentStage]));
     }
   }, [currentStage, isComplete]);
+
+  // Close decompose when the first concept drips in
+  const totalConcepts = exploration.lenses.reduce((sum, l) => sum + l.concepts.length, 0);
+  useEffect(() => {
+    if (prevConceptCountRef.current === 0 && totalConcepts > 0) {
+      setOpenStages((prev) => {
+        const next = new Set(prev);
+        next.delete("decompose");
+        return next;
+      });
+    }
+    prevConceptCountRef.current = totalConcepts;
+  }, [totalConcepts]);
+
+  // Close explore when the first connection drips in
+  const totalConnections = exploration.connections.length;
+  useEffect(() => {
+    if (prevConnectionCountRef.current === 0 && totalConnections > 0) {
+      setOpenStages((prev) => {
+        const next = new Set(prev);
+        next.delete("explore");
+        return next;
+      });
+    }
+    prevConnectionCountRef.current = totalConnections;
+  }, [totalConnections]);
+
+  // Close connect when synthesis arrives
+  useEffect(() => {
+    if (exploration.synthesis) {
+      setOpenStages((prev) => {
+        const next = new Set(prev);
+        next.delete("connect");
+        return next;
+      });
+    }
+  }, [exploration.synthesis]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });

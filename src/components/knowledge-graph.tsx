@@ -100,8 +100,8 @@ function radialLayout(
   // Question at origin
   positions.set(questionNodeId, { x: 0, y: 0 });
 
-  const LENS_RADIUS = 350;
-  const CONCEPT_RADIUS = 250;
+  const LENS_RADIUS = 500;
+  const CONCEPT_RADIUS = 280;
 
   // Spread lenses evenly around the center, starting from top
   const startAngle = -Math.PI / 2;
@@ -132,13 +132,12 @@ function radialLayout(
   });
 
   // Resolve overlaps by pushing nodes apart
-  const NODE_W = 190;
-  const NODE_H = 65;
-  const PADDING = 20;
-  // Exclude the question node from overlap resolution so it stays centered
-  const ids = Array.from(positions.keys()).filter((id) => id !== questionNodeId);
+  const NODE_W = 280;
+  const NODE_H = 90;
+  const PADDING = 40;
+  const ids = Array.from(positions.keys());
 
-  for (let iter = 0; iter < 20; iter++) {
+  for (let iter = 0; iter < 60; iter++) {
     let hadOverlap = false;
     for (let i = 0; i < ids.length; i++) {
       for (let j = i + 1; j < ids.length; j++) {

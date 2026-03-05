@@ -36,7 +36,15 @@ export default async function HomePage() {
   const explorations = await getExplorations();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="relative min-h-screen flex flex-col">
+      {/* Dot grid background spanning full page */}
+      <div
+        className="absolute inset-0 pointer-events-none sm:dot-grid-bg"
+        style={{
+          backgroundImage: "radial-gradient(circle, oklch(1 0 0 / 8%) 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
+        }}
+      />
       <main className="flex-1 flex flex-col justify-center">
         <Hero />
 
@@ -56,20 +64,6 @@ export default async function HomePage() {
           </section>
         )}
       </main>
-
-      <footer className="border-t border-border/50 py-6 text-center text-sm text-muted-foreground">
-        <p>
-          Built by Dan &middot;{" "}
-          <a
-            href="https://github.com"
-            className="underline hover:text-foreground"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GitHub
-          </a>
-        </p>
-      </footer>
     </div>
   );
 }

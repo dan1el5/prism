@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Prism — Question Explorer",
+  title: "Prism | Question Explorer",
   description:
     "An AI agent that autonomously explores questions through multiple lenses, building knowledge graphs and discovering cross-domain connections.",
 };

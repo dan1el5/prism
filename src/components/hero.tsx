@@ -32,14 +32,6 @@ export function Hero() {
 
   return (
     <section className="relative flex flex-col items-center text-center py-4 sm:py-16 px-4 overflow-hidden">
-      {/* Dot grid background — no mask on mobile, masked on desktop */}
-      <div
-        className="absolute inset-0 pointer-events-none sm:dot-grid-bg"
-        style={{
-          backgroundImage: "radial-gradient(circle, oklch(1 0 0 / 8%) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
-      />
 
       {/* Prism container */}
       <div className="relative w-full max-w-md sm:max-w-4xl mx-auto">

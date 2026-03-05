@@ -5,9 +5,10 @@ import { Exploration, Lens, Concept, Connection, AgentStage } from "@/lib/types"
 
 type StreamStatus = "idle" | "streaming" | "complete" | "error";
 
-const CONCEPT_STAGGER = 150;
-const CONNECTION_STAGGER = 120;
-const STREAM_TIMEOUT_MS = 120_000; // 2 minutes max for entire exploration
+const LENS_STAGGER = 300;
+const CONCEPT_STAGGER = 200;
+const CONNECTION_STAGGER = 150;
+const STREAM_TIMEOUT_MS = 300_000; // 5 minutes max for entire exploration
 
 export function useExplorationStream() {
   const [exploration, setExploration] = useState<Exploration | null>(null);
@@ -25,7 +26,11 @@ export function useExplorationStream() {
     abortRef.current = abort;
 
     // Overall stream timeout
-    const timeoutId = setTimeout(() => abort.abort(), STREAM_TIMEOUT_MS);
+    let timedOut = false;
+    const timeoutId = setTimeout(() => {
+      timedOut = true;
+      abort.abort();
+    }, STREAM_TIMEOUT_MS);
 
     setStatus("streaming");
     setStage(null);
@@ -93,11 +98,7 @@ export function useExplorationStream() {
       }
     } catch (err) {
       if ((err as Error).name === "AbortError") {
-        // Check if this was a timeout vs user-initiated abort
-        if (!abort.signal.aborted) return;
-        // If we timed out, show an error
-        const isTimeout = timersRef.current.length === 0;
-        if (isTimeout) {
+        if (timedOut) {
           setError("Exploration timed out. Please try again.");
           setStatus("error");
         }
@@ -126,6 +127,10 @@ export function useExplorationStream() {
   return { exploration, status, stage, error, start, stop, retry };
 }
 
+// Track drip offsets so parallel batches appear in lens order
+let conceptsPerLens = 5; // estimated, used for offset calculation
+let connectionDripOffset = 0;
+
 function handleEvent(
   type: string,
   data: unknown,
@@ -136,21 +141,37 @@ function handleEvent(
   timers: ReturnType<typeof setTimeout>[]
 ) {
   switch (type) {
-    case "status":
+    case "status": {
       setStage((data as { stage: AgentStage }).stage);
+      const stage = (data as { stage: string }).stage;
+      if (stage === "connect") connectionDripOffset = 0;
       break;
-    case "lenses":
-      setExploration((prev) =>
-        prev ? { ...prev, lenses: (data as Lens[]).map(l => ({ ...l, concepts: [] })) } : prev
-      );
+    }
+    case "lenses": {
+      const lenses = data as Lens[];
+      lenses.forEach((lens, i) => {
+        const t = setTimeout(() => {
+          setExploration((prev) => {
+            if (!prev) return prev;
+            const exists = prev.lenses.some((l) => l.id === lens.id);
+            if (exists) return prev;
+            return { ...prev, lenses: [...prev.lenses, { ...lens, concepts: [] }] };
+          });
+        }, i * LENS_STAGGER);
+        timers.push(t);
+      });
       break;
+    }
     case "concepts": {
       const { lensId, concepts } = data as {
         lensId: string;
         concepts: Concept[];
       };
-      // Drip concepts in one by one
+      // Drip concepts in sequentially by lens index
+      const lensIndex = parseInt(lensId.split("-")[1], 10) || 0;
+      const batchStart = lensIndex * conceptsPerLens;
       concepts.forEach((concept, i) => {
+        const delay = (batchStart + i) * CONCEPT_STAGGER;
         const t = setTimeout(() => {
           setExploration((prev) => {
             if (!prev) return prev;
@@ -163,22 +184,24 @@ function handleEvent(
               ),
             };
           });
-        }, i * CONCEPT_STAGGER);
+        }, delay);
         timers.push(t);
       });
       break;
     }
     case "connections": {
       const connections = data as Connection[];
-      // Drip connections in one by one
+      const batchStart = connectionDripOffset;
       connections.forEach((conn, i) => {
+        const delay = (batchStart + i) * CONNECTION_STAGGER;
         const t = setTimeout(() => {
           setExploration((prev) =>
             prev ? { ...prev, connections: [...prev.connections, conn] } : prev
           );
-        }, i * CONNECTION_STAGGER);
+        }, delay);
         timers.push(t);
       });
+      connectionDripOffset = batchStart + connections.length;
       break;
     }
     case "synthesis":
