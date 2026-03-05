@@ -9,7 +9,7 @@ import { AgentTrace } from "@/components/agent-trace";
 import { KnowledgeGraph } from "@/components/knowledge-graph";
 import { SynthesisCard } from "@/components/synthesis-card";
 import { Button } from "@/components/ui/button";
-import { XIcon } from "lucide-react";
+import { XIcon, RefreshCwIcon, AlertCircleIcon } from "lucide-react";
 import Link from "next/link";
 
 function ExplorationContent() {
@@ -21,6 +21,7 @@ function ExplorationContent() {
 
   const [prebaked, setPrebaked] = useState<Exploration | null>(null);
   const [loading, setLoading] = useState(!isLive);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const stream = useExplorationStream();
   const reveal = useProgressiveReveal(prebaked);
 
@@ -30,13 +31,20 @@ function ExplorationContent() {
   useEffect(() => {
     if (isLive) return;
     setLoading(true);
+    setFetchError(null);
     fetch(`/api/explorations/${id}`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(r.status === 404 ? "Exploration not found" : "Failed to load exploration");
+        return r.json();
+      })
       .then((data) => {
         setPrebaked(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        setFetchError(err.message);
+        setLoading(false);
+      });
   }, [id, isLive]);
 
   // Start live exploration
@@ -60,10 +68,28 @@ function ExplorationContent() {
   }
 
   if (!exploration) {
+    // Live stream hasn't emitted yet, or prebaked fetch failed
+    if (isLive && stream.status !== "error") {
+      return (
+        <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+          Starting exploration...
+        </div>
+      );
+    }
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-muted-foreground">
-        <p>Exploration not found.</p>
-        <Link href="/" className="underline hover:text-foreground">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 text-muted-foreground">
+        <AlertCircleIcon className="h-8 w-8 text-muted-foreground/50" />
+        <p>{fetchError || stream.error || "Exploration not found."}</p>
+        {isLive && (
+          <button
+            onClick={stream.retry}
+            className="flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            <RefreshCwIcon className="h-3.5 w-3.5" />
+            Try again
+          </button>
+        )}
+        <Link href="/" className="underline hover:text-foreground text-sm">
           Back to home
         </Link>
       </div>
@@ -144,9 +170,17 @@ function ExplorationContent() {
 
       {/* Error */}
       {stream.error && (
-        <div className="max-w-4xl mx-auto w-full px-4 pb-8">
-          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-sm text-destructive">
-            {stream.error}
+        <div className="shrink-0 border-t border-destructive/20 bg-destructive/5 px-4 py-3">
+          <div className="max-w-4xl mx-auto flex items-center gap-3">
+            <AlertCircleIcon className="h-4 w-4 text-destructive shrink-0" />
+            <p className="text-sm text-destructive flex-1">{stream.error}</p>
+            <button
+              onClick={stream.retry}
+              className="flex items-center gap-1.5 text-sm font-medium text-destructive hover:text-destructive/80 transition-colors"
+            >
+              <RefreshCwIcon className="h-3.5 w-3.5" />
+              Retry
+            </button>
           </div>
         </div>
       )}

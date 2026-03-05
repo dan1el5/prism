@@ -7,6 +7,7 @@ type StreamStatus = "idle" | "streaming" | "complete" | "error";
 
 const CONCEPT_STAGGER = 150;
 const CONNECTION_STAGGER = 120;
+const STREAM_TIMEOUT_MS = 120_000; // 2 minutes max for entire exploration
 
 export function useExplorationStream() {
   const [exploration, setExploration] = useState<Exploration | null>(null);
@@ -22,6 +23,9 @@ export function useExplorationStream() {
     timersRef.current = [];
     const abort = new AbortController();
     abortRef.current = abort;
+
+    // Overall stream timeout
+    const timeoutId = setTimeout(() => abort.abort(), STREAM_TIMEOUT_MS);
 
     setStatus("streaming");
     setStage(null);
@@ -46,8 +50,16 @@ export function useExplorationStream() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Request failed");
+        let message = "Request failed";
+        try {
+          const data = await res.json();
+          message = data.error || message;
+        } catch {
+          // Response wasn't JSON
+          if (res.status === 503) message = "Service unavailable. Please try again later.";
+          else if (res.status >= 500) message = "Server error. Please try again.";
+        }
+        throw new Error(message);
       }
 
       const reader = res.body?.getReader();
@@ -69,16 +81,32 @@ export function useExplorationStream() {
           if (line.startsWith("event: ")) {
             eventType = line.slice(7).trim();
           } else if (line.startsWith("data: ") && eventType) {
-            const data = JSON.parse(line.slice(6));
-            handleEvent(eventType, data, setExploration, setStage, setStatus, setError, timersRef.current);
+            try {
+              const data = JSON.parse(line.slice(6));
+              handleEvent(eventType, data, setExploration, setStage, setStatus, setError, timersRef.current);
+            } catch {
+              console.warn("[prism] Failed to parse SSE data:", line.slice(6));
+            }
             eventType = "";
           }
         }
       }
     } catch (err) {
-      if ((err as Error).name === "AbortError") return;
+      if ((err as Error).name === "AbortError") {
+        // Check if this was a timeout vs user-initiated abort
+        if (!abort.signal.aborted) return;
+        // If we timed out, show an error
+        const isTimeout = timersRef.current.length === 0;
+        if (isTimeout) {
+          setError("Exploration timed out. Please try again.");
+          setStatus("error");
+        }
+        return;
+      }
       setError((err as Error).message);
       setStatus("error");
+    } finally {
+      clearTimeout(timeoutId);
     }
   }, []);
 
@@ -89,7 +117,13 @@ export function useExplorationStream() {
     setStatus("idle");
   }, []);
 
-  return { exploration, status, stage, error, start, stop };
+  const retry = useCallback(() => {
+    if (exploration?.question) {
+      start(exploration.question);
+    }
+  }, [exploration?.question, start]);
+
+  return { exploration, status, stage, error, start, stop, retry };
 }
 
 function handleEvent(

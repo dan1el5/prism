@@ -1,12 +1,27 @@
 const LIMIT = 5;
 const DAY_MS = 24 * 60 * 60 * 1000;
+const MAX_ENTRIES = 10_000;
 
 const store = new Map<string, { count: number; resetTime: number }>();
+
+function cleanup() {
+  const now = Date.now();
+  for (const [ip, entry] of store) {
+    if (now > entry.resetTime) {
+      store.delete(ip);
+    }
+  }
+}
 
 export function checkRateLimit(ip: string): {
   allowed: boolean;
   remaining: number;
 } {
+  // Prevent unbounded memory growth
+  if (store.size > MAX_ENTRIES) {
+    cleanup();
+  }
+
   const now = Date.now();
   const entry = store.get(ip);
 
