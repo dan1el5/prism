@@ -40,7 +40,12 @@ export default async function HomePage() {
       <main className="flex-1">
         <Hero />
 
-        <section className="max-w-4xl mx-auto px-4 pb-20">
+        {/* Gradient divider */}
+        <div className="flex justify-center">
+          <div className="w-[min(400px,60%)] h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+        </div>
+
+        <section className="max-w-4xl mx-auto px-4 pt-12 pb-20">
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
             Example Explorations
           </h2>
