@@ -80,19 +80,9 @@ function ExplorationContent() {
         >
           &larr; Back
         </Link>
-        <h1 className="text-sm font-medium truncate flex-1">
+        <h1 className="text-sm font-medium truncate flex-1 text-center">
           {exploration.question}
         </h1>
-        {!isLive && reveal.isRevealing && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={reveal.skip}
-            className="text-xs border-border/50"
-          >
-            Skip animation
-          </Button>
-        )}
       </header>
 
       {/* Main layout */}

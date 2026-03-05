@@ -1,6 +1,6 @@
 import { Hero } from "@/components/hero";
-import { ExplorationCard } from "@/components/exploration-card";
 import { ExplorationMeta } from "@/lib/types";
+import Link from "next/link";
 
 async function getExplorations(): Promise<ExplorationMeta[]> {
   const { promises: fs } = await import("fs");
@@ -37,24 +37,24 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <main className="flex-1">
+      <main className="flex-1 flex flex-col justify-center">
         <Hero />
 
-        {/* Gradient divider */}
-        <div className="flex justify-center">
-          <div className="w-[min(400px,60%)] h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-        </div>
-
-        <section className="max-w-4xl mx-auto px-4 pt-12 pb-20">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-            Example Explorations
-          </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {explorations.map((meta) => (
-              <ExplorationCard key={meta.id} meta={meta} />
-            ))}
-          </div>
-        </section>
+        {explorations.length > 0 && (
+          <section className="relative z-10 max-w-3xl mx-auto px-4 -mt-4 pb-4">
+            <div className="flex flex-wrap justify-center gap-3">
+              {explorations.map((meta) => (
+                <Link
+                  key={meta.id}
+                  href={`/explore/${meta.id}`}
+                  className="text-sm text-foreground/70 hover:text-foreground border border-border hover:border-indigo-500/50 bg-card/60 hover:bg-card rounded-full px-5 py-2.5 transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-0.5"
+                >
+                  {meta.question}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
       <footer className="border-t border-border/50 py-6 text-center text-sm text-muted-foreground">

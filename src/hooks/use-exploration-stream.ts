@@ -5,15 +5,21 @@ import { Exploration, Lens, Concept, Connection, AgentStage } from "@/lib/types"
 
 type StreamStatus = "idle" | "streaming" | "complete" | "error";
 
+const CONCEPT_STAGGER = 150;
+const CONNECTION_STAGGER = 120;
+
 export function useExplorationStream() {
   const [exploration, setExploration] = useState<Exploration | null>(null);
   const [status, setStatus] = useState<StreamStatus>("idle");
   const [stage, setStage] = useState<AgentStage>(null);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const start = useCallback(async (question: string) => {
     abortRef.current?.abort();
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
     const abort = new AbortController();
     abortRef.current = abort;
 
@@ -64,7 +70,7 @@ export function useExplorationStream() {
             eventType = line.slice(7).trim();
           } else if (line.startsWith("data: ") && eventType) {
             const data = JSON.parse(line.slice(6));
-            handleEvent(eventType, data, setExploration, setStage, setStatus, setError);
+            handleEvent(eventType, data, setExploration, setStage, setStatus, setError, timersRef.current);
             eventType = "";
           }
         }
@@ -78,6 +84,8 @@ export function useExplorationStream() {
 
   const stop = useCallback(() => {
     abortRef.current?.abort();
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
     setStatus("idle");
   }, []);
 
@@ -90,7 +98,8 @@ function handleEvent(
   setExploration: React.Dispatch<React.SetStateAction<Exploration | null>>,
   setStage: React.Dispatch<React.SetStateAction<AgentStage>>,
   setStatus: React.Dispatch<React.SetStateAction<StreamStatus>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  timers: ReturnType<typeof setTimeout>[]
 ) {
   switch (type) {
     case "status":
@@ -98,7 +107,7 @@ function handleEvent(
       break;
     case "lenses":
       setExploration((prev) =>
-        prev ? { ...prev, lenses: data as Lens[] } : prev
+        prev ? { ...prev, lenses: (data as Lens[]).map(l => ({ ...l, concepts: [] })) } : prev
       );
       break;
     case "concepts": {
@@ -106,22 +115,38 @@ function handleEvent(
         lensId: string;
         concepts: Concept[];
       };
-      setExploration((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          lenses: prev.lenses.map((l) =>
-            l.id === lensId ? { ...l, concepts } : l
-          ),
-        };
+      // Drip concepts in one by one
+      concepts.forEach((concept, i) => {
+        const t = setTimeout(() => {
+          setExploration((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              lenses: prev.lenses.map((l) =>
+                l.id === lensId
+                  ? { ...l, concepts: [...l.concepts, concept] }
+                  : l
+              ),
+            };
+          });
+        }, i * CONCEPT_STAGGER);
+        timers.push(t);
       });
       break;
     }
-    case "connections":
-      setExploration((prev) =>
-        prev ? { ...prev, connections: data as Connection[] } : prev
-      );
+    case "connections": {
+      const connections = data as Connection[];
+      // Drip connections in one by one
+      connections.forEach((conn, i) => {
+        const t = setTimeout(() => {
+          setExploration((prev) =>
+            prev ? { ...prev, connections: [...prev.connections, conn] } : prev
+          );
+        }, i * CONNECTION_STAGGER);
+        timers.push(t);
+      });
       break;
+    }
     case "synthesis":
       setExploration((prev) =>
         prev

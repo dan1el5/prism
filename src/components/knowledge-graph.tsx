@@ -46,7 +46,7 @@ function AllHandles() {
 function QuestionNode({ data }: NodeProps<Node<{ label: string; animate: boolean }>>) {
   return (
     <div
-      className={`px-6 py-3 rounded-2xl border border-primary/30 bg-primary/10 text-sm font-medium text-foreground text-center max-w-[240px] ${data.animate ? "animate-node-enter" : ""}`}
+      className={`px-6 py-3 rounded-2xl border border-primary/30 bg-primary/10 text-sm font-medium text-foreground text-center max-w-[300px] ${data.animate ? "animate-node-enter" : ""}`}
     >
       <AllHandles />
       <span>{data.label}</span>
@@ -135,7 +135,8 @@ function radialLayout(
   const NODE_W = 190;
   const NODE_H = 65;
   const PADDING = 20;
-  const ids = Array.from(positions.keys());
+  // Exclude the question node from overlap resolution so it stays centered
+  const ids = Array.from(positions.keys()).filter((id) => id !== questionNodeId);
 
   for (let iter = 0; iter < 20; iter++) {
     let hadOverlap = false;
@@ -149,7 +150,6 @@ function radialLayout(
         const overlapY = (NODE_H + PADDING) - Math.abs(dy);
         if (overlapX > 0 && overlapY > 0) {
           hadOverlap = true;
-          // Push apart along the axis with less overlap
           if (overlapX < overlapY) {
             const push = overlapX / 2 + 1;
             const dir = dx >= 0 ? 1 : -1;
@@ -187,10 +187,7 @@ function KnowledgeGraphInner({
     const shouldAnimateRoot = !animatedNodesRef.current.has(rootId);
     if (shouldAnimateRoot) animatedNodesRef.current.add(rootId);
 
-    const questionLabel =
-      exploration.question.length > 50
-        ? exploration.question.slice(0, 47) + "..."
-        : exploration.question;
+    const questionLabel = exploration.question;
 
     nodes.push({
       id: rootId,
@@ -282,9 +279,10 @@ function KnowledgeGraphInner({
   useEffect(() => {
     setNodes(initialNodes);
     setEdges(initialEdges);
+    // Delay to let React Flow measure nodes before fitting
     setTimeout(() => {
-      fitView({ padding: 0.15, duration: 800, maxZoom: 0.85 });
-    }, 100);
+      fitView({ padding: 0.15, maxZoom: 0.85 });
+    }, 50);
   }, [initialNodes, initialEdges, setNodes, setEdges, fitView]);
 
   const onNodeClick = useCallback(
@@ -315,8 +313,6 @@ function KnowledgeGraphInner({
         nodeTypes={nodeTypes}
         connectionLineType={ConnectionLineType.Straight}
         colorMode="dark"
-        fitView
-        fitViewOptions={{ padding: 0.15, maxZoom: 0.85, duration: 800 }}
         proOptions={{ hideAttribution: true }}
       >
         <Background color="#333" gap={20} />
@@ -331,7 +327,7 @@ function KnowledgeGraphInner({
               className="w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: LENS_COLORS[i % LENS_COLORS.length].border }}
             />
-            <span className="text-muted-foreground max-w-[180px] truncate">{lens.name}</span>
+            <span className="text-muted-foreground">{lens.name}</span>
           </div>
         ))}
       </div>

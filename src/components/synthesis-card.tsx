@@ -1,8 +1,8 @@
 "use client";
 
-export function SynthesisCard({ content }: { content: string }) {
-  const paragraphs = content.split("\n\n").filter(Boolean);
+import ReactMarkdown from "react-markdown";
 
+export function SynthesisCard({ content }: { content: string }) {
   return (
     <div className="relative rounded-2xl p-px bg-gradient-to-br from-primary/50 via-purple-500/30 to-emerald-500/20">
       <div className="rounded-[15px] bg-card px-6 py-5">
@@ -15,16 +15,8 @@ export function SynthesisCard({ content }: { content: string }) {
             Synthesis
           </h3>
         </div>
-        <div className="space-y-4">
-          {paragraphs.map((p, i) => (
-            <p
-              key={i}
-              className="text-sm text-foreground/80 leading-relaxed animate-fade-in-up"
-              style={{ animationDelay: `${i * 150}ms`, animationFillMode: "both" }}
-            >
-              {p}
-            </p>
-          ))}
+        <div className="max-w-none text-foreground/80 leading-relaxed text-sm [&_h1]:text-lg [&_h1]:font-semibold [&_h1]:text-foreground [&_h1]:mb-3 [&_h1]:mt-5 [&_h2]:text-base [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:mb-2 [&_h2]:mt-4 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-foreground [&_h3]:mb-2 [&_h3]:mt-3 [&_strong]:text-foreground [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:pl-5 [&_ul]:list-disc [&_ol]:mb-4 [&_ol]:pl-5 [&_ol]:list-decimal [&_li]:mb-1">
+          <ReactMarkdown>{content}</ReactMarkdown>
         </div>
       </div>
     </div>

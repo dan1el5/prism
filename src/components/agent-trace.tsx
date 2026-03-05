@@ -180,21 +180,15 @@ export function AgentTrace({
                   )}
                 {key === "connect" && exploration.connections.length > 0 && (
                   <div className="space-y-1">
-                    {exploration.connections.slice(0, 5).map((conn, ci) => (
+                    {exploration.connections.map((conn, ci) => (
                       <div
                         key={conn.id}
                         className="text-xs animate-fade-in-up"
                         style={{ animationDelay: `${ci * 60}ms`, animationFillMode: "both" }}
                       >
-                        &bull; {conn.description.slice(0, 80)}
-                        {conn.description.length > 80 ? "..." : ""}
+                        &bull; {conn.description}
                       </div>
                     ))}
-                    {exploration.connections.length > 5 && (
-                      <div className="text-xs text-muted-foreground/50 italic">
-                        +{exploration.connections.length - 5} more
-                      </div>
-                    )}
                   </div>
                 )}
                 {key === "synthesize" && exploration.synthesis && (
