@@ -2,7 +2,7 @@
 
 A multi-stage AI agent that autonomously explores questions — decomposing them into lenses, discovering concepts across domains, surfacing non-obvious connections, and synthesizing insights. The agent's reasoning trace is the interface.
 
-**[Live Demo →](https://prism.vercel.app)**
+**[Live Demo →]([https://prism.vercel.app](https://prism-dans-projects-56a541af.vercel.app/))**
 
 ## Architecture
 
