@@ -59,7 +59,7 @@ function ExplorationContent() {
   const isComplete = isLive ? stream.status === "complete" : reveal.isComplete;
   const currentStage = isLive ? stream.stage : reveal.currentStage;
 
-  if (loading) {
+  if (loading || (!isLive && prebaked && !exploration)) {
     return (
       <div className="min-h-screen flex items-center justify-center text-muted-foreground">
         Loading exploration...
@@ -97,7 +97,7 @@ function ExplorationContent() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-dvh flex flex-col overflow-hidden">
       {/* Header */}
       <header className="shrink-0 border-b border-border/50 px-4 py-3 flex items-center gap-4 bg-card/50 backdrop-blur-sm">
         <Link
@@ -114,7 +114,7 @@ function ExplorationContent() {
       {/* Main layout */}
       <div className="flex-1 flex flex-col lg:flex-row min-h-0">
         {/* Left panel — Agent Trace */}
-        <div className="lg:w-80 shrink-0 border-b lg:border-b-0 lg:border-r border-border/50 flex flex-col max-h-[300px] lg:max-h-none">
+        <div className="lg:w-80 shrink-0 border-b lg:border-b-0 lg:border-r border-border/50 flex flex-col lg:max-h-none">
           {/* Pinned header (mobile) */}
           <div className="shrink-0 px-4 pt-4 pb-2 space-y-2 lg:hidden">
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
@@ -142,7 +142,7 @@ function ExplorationContent() {
 
         {/* Right panel — Knowledge Graph */}
         <div className="flex-1 flex flex-col min-h-0 relative">
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0 h-full">
             <KnowledgeGraph exploration={exploration} />
           </div>
 

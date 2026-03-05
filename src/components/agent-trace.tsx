@@ -179,7 +179,7 @@ export function AgentTrace({
                   )}
                 </CollapsibleTrigger>
               </div>
-              <CollapsibleContent className="pl-11 text-sm text-muted-foreground space-y-2 pb-2">
+              <CollapsibleContent className="hidden lg:block pl-11 text-sm text-muted-foreground space-y-2 pb-2">
                 {key === "decompose" && exploration.lenses.length > 0 && (
                   <div className="space-y-1.5">
                     {exploration.lenses.map((lens, i) => (

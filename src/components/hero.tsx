@@ -107,13 +107,16 @@ export function Hero() {
         {/* Content inside the prism */}
         <div className="relative flex flex-col items-center gap-6 sm:gap-5 py-8 sm:pt-36 sm:pb-18 px-6 sm:px-32">
           {/* Title */}
-          <h1
-            className="relative text-5xl sm:text-7xl font-bold font-mono tracking-tighter bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent opacity-0 animate-hero-fade-in"
-            style={{ animationDelay: "100ms" }}
-          >
-            <span className="absolute inset-0 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent blur-xl opacity-60" aria-hidden="true">Prism</span>
-            Prism
-          </h1>
+          <div className="relative opacity-0 animate-hero-fade-in" style={{ animationDelay: "100ms" }}>
+            <span
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-20 sm:w-72 sm:h-28 pointer-events-none"
+              style={{ background: "radial-gradient(ellipse at center, rgba(168,85,247,0.35) 0%, transparent 70%)" }}
+              aria-hidden="true"
+            />
+            <h1 className="relative text-5xl sm:text-7xl font-bold font-mono tracking-tighter bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Prism
+            </h1>
+          </div>
 
           {/* Subtitle */}
           <p
@@ -134,7 +137,7 @@ export function Hero() {
               placeholder="What question do you want to explore?"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              className="flex-1 h-11 px-4 text-sm bg-card/50 border-border/50 backdrop-blur-sm focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/40 transition-shadow"
+              className="flex-1 h-11 px-4 text-base sm:text-sm bg-card/50 border-border/50 backdrop-blur-sm focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/40 transition-shadow"
             />
             <Button
               type="submit"
