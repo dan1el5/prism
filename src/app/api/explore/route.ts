@@ -3,6 +3,8 @@ import { checkRateLimit, consumeRateLimit } from "@/lib/rate-limit";
 import { decompose, explore, connect, synthesize, PipelineError } from "@/lib/agent/pipeline";
 import { Lens } from "@/lib/types";
 
+export const maxDuration = 120;
+
 function getIP(req: NextRequest): string {
   return (
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
