@@ -47,7 +47,7 @@ export class PipelineError extends Error {
   }
 }
 
-function classifyError(err: unknown): PipelineError {
+export function classifyError(err: unknown): PipelineError {
   if (err instanceof PipelineError) return err;
 
   const message = err instanceof Error ? err.message : String(err);
