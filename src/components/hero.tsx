@@ -31,7 +31,7 @@ export function Hero() {
   }
 
   return (
-    <section className="relative flex flex-col items-center text-center py-4 sm:py-16 px-4 overflow-hidden">
+    <section className="relative flex flex-col items-center text-center py-8 sm:py-16 px-4 overflow-hidden">
 
       {/* Prism container */}
       <div className="relative w-full max-w-md sm:max-w-4xl mx-auto">
@@ -105,7 +105,7 @@ export function Hero() {
         </svg>
 
         {/* Content inside the prism */}
-        <div className="relative flex flex-col items-center gap-6 sm:gap-5 py-8 sm:pt-36 sm:pb-18 px-6 sm:px-32">
+        <div className="relative flex flex-col items-center gap-6 sm:gap-5 py-4 sm:pt-36 sm:pb-18 px-6 sm:px-32">
           {/* Title */}
           <div className="relative opacity-0 animate-hero-fade-in" style={{ animationDelay: "100ms" }}>
             <span
